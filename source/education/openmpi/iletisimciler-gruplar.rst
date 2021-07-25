@@ -66,14 +66,27 @@ Peki grupları nasıl manipüle edebiliriz?
                        MPI_Group group,
                        MPI_Comm *newcomm)
 
+Grupları manipüle etmek zahmetli ve karışık olabilir. Buna çözüm olarak bir iletişimci objesini kullanarak alt iletişimciler yaratabiliriz.
+
+.. code-block:: c
+
+   int MPI_Comm_split(MPI_Comm comm,
+                      int color,
+                      int key,
+                      MPI_Comm *newcomm)
+
+**comm:** baz olarak kullandığımız iletişimci objesi
+
+**color:** işlemi yeni iletişimciye atama kriteri. Aynı değerleri alan işlemler yeni yaratılan iletişimcilerde aynı iletişimcide olurlar.
+
+**key: y**\ eni iletişimci grubundaki arama işleminin göreli sırası.
+
+**newcomm:** yarattığımız yeni iletişimci objesi
+
 İletişimci Örneği
 ^^^^^^^^^^^^^^^^^
 
 .. code-block:: c
-
-   /* Adapated from:
-    * https://github.com/UoB-HPC/hpc-course-examples/blob/master/mpi/advanced/example10/group_to_comm.c
-    */
 
    #include <stdio.h>
    #include <stdlib.h>
@@ -83,60 +96,61 @@ Peki grupları nasıl manipüle edebiliriz?
    #define NPROCS 4
 
    int main(int argc, char *argv[]) {
-     int rank;
-     int size;
-     int new_rank;
-     int sendbuf;
-     int recvbuf;
-     int count;
-     // list of process ranks in first and second groups
-     int ranks1[2] = {0, 1};
-     int ranks2[2] = {2, 3};
+           int rank;
+           int size;
+           int new_rank;
+           int sendbuf;
+           int recvbuf;
+           int count;
 
-     MPI_Group world_group;
-     MPI_Group new_group;
-     MPI_Comm new_comm;
+           MPI_Comm new_comm;
 
-     MPI_Init(&argc, &argv);
-     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-     MPI_Comm_size(MPI_COMM_WORLD, &size);
+           MPI_Init(&argc, &argv);
+           MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+           MPI_Comm_size(MPI_COMM_WORLD, &size);
+           if(rank == 0){
+                   printf("MPI_COMM_WORLD size = %d\n", size);
+           }
 
-     // MPI_COMM_WORLD büyüklüğü oluşturacağımız gruplar için uygun mu kontrol ediyoruz
-     if (size != NPROCS) {
-       fprintf(stderr, "Error: Must have %d processes in MPI_COMM_WORLD\n",
-               NPROCS);
-       MPI_Abort(MPI_COMM_WORLD, 1);
-     }
+           // programda 4 işlem olup olmadığını kontrol ediyoruz
+           if (size != NPROCS) {
+                   fprintf(stderr, "Error: Must have %d processes in MPI_COMM_WORLD\n",
+                                   NPROCS);
+                   MPI_Abort(MPI_COMM_WORLD, 1);
+           }
 
-     // işlem kendi sırasını diğer işlemlere yollayacak
-     sendbuf = rank;
-     count = 1;
+           // işlemin MPI_COMM_WORLD'dek sırasını mesaj olarak yollayacağız
+           sendbuf = rank;
+           count = 1;
 
-     // MPI_COMM_WORLD grubunu alyoruz
-     MPI_Comm_group(MPI_COMM_WORLD, &world_group);
+           // işlemleri MPI_Comm_split kullnarak ikiye ayırıyoruz
+           // new_comm farklı işlemler için, farklı işlem gruplarını temsil ediyor
+           //işlemleri sırası ikiden büyükse farklı gruba ve küçükse farklı gruba ayırıyoruz
+           int res = MPI_Comm_split(MPI_COMM_WORLD, rank < NPROCS / 2, rank, &new_comm);
 
-     // split the processes in half, one half goes to ranks1 the other to ranks2
-     if (rank < NPROCS / 2) {
-       MPI_Group_excl(world_group, NPROCS / 2, ranks1, &new_group);
-     } else {
-       MPI_Group_excl(world_group, NPROCS / 2, ranks2, &new_group);
-     }
+           //yeni yaratılmış iletişimcinin büyüklüğüne bakıyoruz
+           MPI_Comm_size(new_comm, &size);
+           if(rank == 0){
+                   printf("New comunicator success = %s, size = %d\n", res == MPI_SUCCESS ? "true": "false", size);
+           }
 
-     MPI_Comm_create(MPI_COMM_WORLD, new_group, &new_comm);
+           // yeni yarattığımız iletişimciyi ve orijinal iletişimciyi karşılaştırıyoruz
+           int result;
+           MPI_Comm_compare(MPI_COMM_WORLD,new_comm,&result);
+           if(rank == 0){
+                   printf("assign:    comm==copy: %d \n",result==MPI_IDENT);
+                   printf("            congruent: %d \n",result==MPI_CONGRUENT);
+                   printf("            not equal: %d \n",result==MPI_UNEQUAL);
+           }
 
-     // compute total of ranks in MPI_COMM_WORLD in the newer, smaller communicator
-     MPI_Allreduce(&sendbuf, &recvbuf, count, MPI_INT, MPI_SUM, new_comm);
+           // MPI_COMM_WORLD'deki sıra toplamını yeni ve küçük iletişimciyi kullanarak indirgiyoruz
+           // çıktıda indirgenmiş değerler farklı gruplarda farklı olacaktır
+           MPI_Allreduce(&sendbuf, &recvbuf, count, MPI_INT, MPI_SUM, new_comm);
+           printf("New Comm: rank= %d newrank= %d recvbuf= %d\n", rank, new_rank, recvbuf);
 
-     // yeni gruptaki işlem sırası
-     MPI_Group_rank(new_group, &new_rank);
+           MPI_Comm_free(&new_comm);
 
-     printf("rank= %d newrank= %d recvbuf= %d\n", rank, new_rank, recvbuf);
+           MPI_Finalize();
 
-     MPI_Group_free(&world_group);
-     MPI_Group_free(&new_group);
-     MPI_Comm_free(&new_comm);
-
-     MPI_Finalize();
-
-     return EXIT_SUCCESS;
+           return 0;
    }

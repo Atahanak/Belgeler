@@ -16,13 +16,11 @@ Bu dokümanda *MPI* arayüzünün en önemli fonksiyonları işlenirken, genel o
     engellenmeyen-iletisim.rst
     toplu-islemler.rst
     ozel-veri-yapilari.rst
+    Tek-Tarafli-Iletisim-(Uzak-Bellek-Erisimi).rst
 
 
 Yakında eklenecek eğitimler:
 
-* Paralel Paradigmalar ve Paralel Algoritmalar
-* Sanal Topolojiler
-* MPI-2 ve MPI-3
 * Performans Ölçme ve Eniyileme
 
 Bu eğitim materyali `başlangıç <https://pdc-support.github.io/introduction-to-mpi/>`_ ve `orta düzey <https://enccs.github.io/intermediate-mpi/>`_ eğitim materyalinden yararlanarak, EuroCC projesi için TRUBA üzerinde hazırlanmıştır.
