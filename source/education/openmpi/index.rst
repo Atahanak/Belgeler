@@ -17,10 +17,6 @@ Bu dokümanda *MPI* arayüzünün en önemli fonksiyonları işlenirken, genel o
     toplu-islemler.rst
     ozel-veri-yapilari.rst
     Tek-Tarafli-Iletisim-(Uzak-Bellek-Erisimi).rst
-
-
-Yakında eklenecek eğitimler:
-
-* Performans Ölçme ve Eniyileme
+    Performans-Olcme-ve-Eniyileme.rst
 
 Bu eğitim materyali `başlangıç <https://pdc-support.github.io/introduction-to-mpi/>`_ ve `orta düzey <https://enccs.github.io/intermediate-mpi/>`_ eğitim materyalinden yararlanarak, EuroCC projesi için TRUBA üzerinde hazırlanmıştır.
