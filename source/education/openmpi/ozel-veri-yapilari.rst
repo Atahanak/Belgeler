@@ -2,13 +2,19 @@
 Özel Veri Yapıları
 ==================
 
-Özel veri türleri tanımlama kabiliyeti, programcıların kodlarını okunabilirliği ve sürdürülebilirliği artıracak şekilde yapılandırmasına olanak tanıdığından, modern bir programlama dilinin ayırt edici özelliklerinden biridir. MPI standardı programlama dillerinin hem bu özelliğini desteklemek hem de işlemciler arasında transfer edilen mesaj sayısını en aza indirebilmek için özel veri yapılarını desteklemektedir.
+Özel veri türleri tanımlama kabiliyeti, programcıların kodlarını okunabilirliği ve sürdürülebilirliği artıracak 
+şekilde yapılandırmasına olanak tanıdığından, modern bir programlama dilinin ayırt edici özelliklerinden biridir. 
+MPI standardı programlama dillerinin hem bu özelliğini desteklemek hem de işlemler arasında transfer edilen mesaj 
+sayısını en aza indirebilmek için özel veri yapılarını desteklemektedir.
 
-Önceklikle MPI'ın hangi basit data yapılarını desteklediğini görelim:
+Önceklikle MPI'ın hangi basit Veri yapılarını desteklediğini görelim:
 
-`Desteklenen Data Yapıları <https://www.notion.so/3c320768e3194ef2b60d8a84841819e6>`_
+`Desteklenen Veri Yapıları <https://www.notion.so/3c320768e3194ef2b60d8a84841819e6>`_
 
-C programlama dilinde veri tipleri, standart tarafından tanımlanmış ve derleyici tarafından icra edilen, primitif yapılardır. MPI data yapıları ise derleyici tarafından farklı veri yapıları olarak gözükmez, özel veri yapılarının hepsi derleyici tarafından ``MPI_Datatype``\ 'ın türleri olarak algılanmaktadır. Bu yüzden  özel veri yapılarını kullanırken dikkat edilmesi gereken unsurlar bulunmaktadır.
+C programlama dilinde veri tipleri, standart tarafından tanımlanmış ve derleyici tarafından icra edilen, basit yapılardır.
+MPI data yapıları ise derleyici tarafından farklı veri yapıları olarak gözükmez, özel veri yapılarının hepsi derleyici 
+tarafından ``MPI_Datatype``'ın türleri olarak algılanmaktadır. Bu yüzden  özel veri yapılarını kullanırken dikkat edilmesi 
+gereken unsurlar bulunmaktadır.
 
 C programa dilinde özel bir veri yapısı aşağıdaki gibi tanımlanabilir:
 
@@ -19,7 +25,10 @@ C programa dilinde özel bir veri yapısı aşağıdaki gibi tanımlanabilir:
        char second
    }
 
- Bu şekilde tanımlanan ``pair``  veri yapısı yeni bir veri yapısıdır. C standardı bu yeni data yapısının sorunsuz bir şekilde kullanılması için gereklilikleri belirler ve derleyici de gereken makine kodunu oluşturur. Böylece kullanıncı için yeni oluşturulan bu veri yapısının temel veri yapılarından bir farkı yoktur, fakat bunların hepsi derleme zamanında gerçekleşir.
+Bu şekilde tanımlanan ``pair`` veri yapısı yeni bir veri yapısıdır. C standardı bu yeni data yapısının sorunsuz 
+bir şekilde kullanılması için gereklilikleri belirler ve derleyici de gereken makine kodunu oluşturur. 
+Böylece kullanıcı için yeni oluşturulan bu veri yapısının temel veri yapılarından bir farkı yoktur, fakat bunların 
+hepsi derleme zamanında gerçekleşir.
 
 MPI'da özle veri yapılarını kullanmak için kullanıcının heterojen mimarilerde sorunsuz bir şekilde mesaj yollayıp alabilmesi için alt düzey bilgiler vermesi gerekmektedir.
 

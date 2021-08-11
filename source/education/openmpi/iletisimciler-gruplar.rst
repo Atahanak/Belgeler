@@ -18,7 +18,7 @@ Bir iletişimci temel iki objeden oluşur:
 * Grup (group): sıralı bir işlem koleksiyonu. Gruptaki her işleme, negatif olmayan bir tam sayı olan bir sıra atanır. Sıralama, gruptaki her süreci benzersiz bir şekilde tanımlar.
 * Bağlam (context): her bir iletişimciyi benzersiz şekilde tanımlayan sistem tanımlı bir objedir. Bağlam iletişimci için benzersiz olduğu için aynı grup birden fazla iletişimciye ait olabilir.
 
-``MPI_COMM_WORLD`` mpi kütüphanesi tarafından önceden tanımlanmış iletişimcidir.
+``MPI_COMM_WORLD`` MPI kütüphanesi tarafından önceden tanımlanmış iletişimcidir.
 
 .. code-block:: c
 
@@ -46,10 +46,11 @@ Yaratılmış iletişimcilerin bağlamı direk olarak değiştirilemez fakat ait
 Peki grupları nasıl manipüle edebiliriz?
 
 
-* Hali hazırda varolan gruplardan işlemcileri ekleyerek ve çıkararak.
-* Hali hazırda var olan gruplar üzerinde küme işlemleri, kesişim vb., kullanarak.
+* Hâlihazırda varolan gruplardan işlemcileri ekleyerek ve çıkararak.
+* Hâlihazırda var olan gruplar üzerinde küme işlemleri, kesişim vb., kullanarak.
 
-İşlemlerin çıkarılması ve dahil edilmesi, sıralar ile yapılır, sıranın bir grup içindeki bir işlemin benzersiz tanımlayıcısı olduğunu hatırlayın.
+İşlemlerin çıkarılması ve dahil edilmesi, sıra numaraları (*ing.*, ranks) ile yapılır.
+Bir işlemin bir grup içindeki sırası o işlemin benzersiz bir tanımlayıcısıdır.
 
 .. code-block:: c
 
@@ -75,13 +76,13 @@ Grupları manipüle etmek zahmetli ve karışık olabilir. Buna çözüm olarak 
                       int key,
                       MPI_Comm *newcomm)
 
-**comm:** baz olarak kullandığımız iletişimci objesi
+``comm``: baz olarak kullandığımız iletişimci objesi
 
-**color:** işlemi yeni iletişimciye atama kriteri. Aynı değerleri alan işlemler yeni yaratılan iletişimcilerde aynı iletişimcide olurlar.
+``color``: işlemi yeni iletişimciye atama kriteri. Aynı değerleri alan işlemler yeni yaratılan iletişimcilerde aynı iletişimcide olurlar.
 
-**key: y**\ eni iletişimci grubundaki arama işleminin göreli sırası.
+``key``: yeni iletişimci grubundaki arama işleminin göreli sırası.
 
-**newcomm:** yarattığımız yeni iletişimci objesi
+``newcomm``: yarattığımız yeni iletişimci objesi
 
 İletişimci Örneği
 ^^^^^^^^^^^^^^^^^

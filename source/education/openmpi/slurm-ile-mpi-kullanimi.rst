@@ -2,14 +2,13 @@
 Slurm ile MPI kullanımı
 =======================
 
-MPI, HPC için çok önemli olan bir şeye izin verir - birden çok düğümün (sunucunun) aynı prosedür üzerinde çalışmasını sağlar. Sunucular arasındaki bu işbirliği oldukça sorunsuzdur ve TRUBA gibi bir sistemde çalışmak kolaydır. MPI içeren görevleri yürütmek için, iş adımlarını ``mpirun`` komutunu kullanarak başlatmamız gerekir (şimdiye kadar kullanılan ``srun`` komutu yerine). ``mpirun`` komutu kullanılarak oluşturulan iş adımları yine birden fazla görev oluşturacaktır, ancak bu görevler aynı MPI prosedürü üzerinde çalışacaktır. Öte yandan, ``srun`` komutu kullanılarak oluşturulan görevler birbirinden bağımsızdır.
+MPI, HPC için çok önemli olan bir şeye izin verir - birden çok düğümün (sunucunun) aynı prosedür (işlem) üzerinde çalışmasını sağlar. Sunucular arasındaki bu işbirliği oldukça sorunsuzdur ve TRUBA gibi bir sistemde çalışmak kolaydır. MPI içeren görevleri yürütmek için, iş adımlarını ``mpirun`` komutunu kullanarak başlatmamız gerekir (daha önceki eğitimlerde kullanılan ``srun`` komutu yerine). ``mpirun`` komutu kullanılarak oluşturulan iş adımları yine birden fazla görev oluşturacaktır, ancak bu görevler aynı MPI prosedürü üzerinde çalışacaktır. Öte yandan, ``srun`` komutu kullanılarak oluşturulan görevler birbirinden bağımsızdır.
 
-OMP ile deney yapmak için aşağıdaki MPI programını kullanacağız (şimdilik bu programı anlamaya çalışmanıza gerek yok :) İlerki bölümleri takip ettikten sonra geri dönüp anlamaya çalışmanızı tavsiye ederiz :)):
+MPI ile basit bir deney yapmak için aşağıdaki MPI programını kullanacağız (şimdilik bu programı anlamaya çalışmanıza gerek yok :) İlerki bölümleri takip ettikten sonra geri dönüp anlamaya çalışmanızı tavsiye ederiz :)):
 
 .. code-block:: c
 
    #include <stdio.h>
-   #include <omp.h>
    #include <limits.h>
    #include <unistd.h>
    static long long num_steps=1000000000;
@@ -19,7 +18,7 @@ OMP ile deney yapmak için aşağıdaki MPI programını kullanacağız (şimdil
    int main(int argc, char** argv){
            gethostname(hostname, HOST_NAME_MAX);
            int i, myid, num_procs;
-           double x, pi, remote_sum, sum=0, start=0, end=0;;
+           double x, pi, remote_sum, sum=0, start=0, end=0;
            MPI_Init(&argc, &argv);
            MPI_Barrier(MPI_COMM_WORLD);
            MPI_Comm_rank(MPI_COMM_WORLD, &myid);
@@ -50,7 +49,7 @@ OMP ile deney yapmak için aşağıdaki MPI programını kullanacağız (şimdil
            return 0;
    }
 
-Aynı prosedür üzerinde çalışmak için birden çok düğüm (ve düğüm başına birden çok görev) kullanarak MPI programlarını yürütme
+Birden çok düğüm (ve düğüm başına birden çok görev) kullanarak MPI programlarını yürütme
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Aşağıda gösterilen mpi.slurm betiği, MPI görevlerini yürütmek için birden çok düğümü nasıl kullanabileceğimizi gösterir:
@@ -88,7 +87,7 @@ Ardından, bu komut dosyasını yürütmek üzere TRUBA'ya aşağıdaki komutu k
 
 ``<part>``\ : çalışmayı sıraya alacağınız bölümün adı.
 
-`<time>`: Çalışmanızın çalışacağı maksimum süre. Bu girdinin biçimi `d-hh: mm: ss\ ``şeklindedir, burada``\ d\ ``günü,``\ hh\ ``saati,``\ mm\ ``dakikayı ve``\ ss` saniyeyi temsil eder. Not: Yürütülebilir dosya belirtilen bu zaman aralığında sona ermezse, otomatik olarak sonlandırılacaktır.
+``<time>``\ : Çalışmanızın çalışacağı maksimum süre. Bu girdinin biçimi ``d-hh: mm: ss``\ şeklindedir, burada ``d``\ günü,\ ``hh``\ saati,\ ``mm``\ dakikayı ve ``ss``\ saniyeyi temsil eder. Not: Yürütülebilir dosya belirtilen bu zaman aralığında sona ermezse, otomatik olarak sonlandırılacaktır.
 
 ``<N>``\ : bu komut dosyasındaki görevleri çalıştırmak için kullanılacak düğüm (sunucu) sayısı.
 
