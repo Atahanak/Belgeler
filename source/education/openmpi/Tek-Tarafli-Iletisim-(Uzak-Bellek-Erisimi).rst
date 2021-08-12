@@ -2,52 +2,69 @@
 Tek Taraflı İletişim (Uzak Bellek Erişimi)
 ==========================================
 
-MPI'daki MPI_Send ve MPI_Recv iletişim modeline artık aşinasınız. Bu model aynı zamanda iki taraflı iletişim olarak da adlandırılır. Bu modelde iki süreç örtük olarak birbiriyle senkronize olur. Bu, birini aramak gibidir: iki tarafında aynı anda iletişim kurması gerekir.  
+MPI'daki ``MPI_Send`` ve ``MPI_Recv`` iletişim modeline artık aşinasınız. 
+Bu model aynı zamanda iki taraflı iletişim olarak da adlandırılır ve iki süreç örtük olarak birbiriyle senkronize olur. 
+Bu, birini aramak gibidir: iki tarafında aynı anda iletişim kurması gerekir. 
+Elbette daha önce bahsedildiği gibi arabellek kullanımı ile basit, tek bir kere gerçeklenen
+iletişimlerde, ya da tıkanmasız iletişim fonksiyonları ile bu senkronizasyon en aza indirgenebilir. 
+Yine de bu model, veri aktarımı için her zaman en uygun model değildir. 
+Çoğu zaman iki tarafında aynı anda senkronize olması gereksinimi verimsizliklere yol açar. 
 
-Ancak bu model, veri aktarımı için her zaman en uygun model değildir. Çoğu zaman iki tarafında aynı anda senkronize olması gerekmesi verimsizliklere yol açar. Bu yüzden, MPI, tek taraflı iletişim olarak da bilinen, özel bellek pencerelerinde sağlandığı sürece, işlemlerin diğer işlemlerdeki verilere erişebildiği uzaktan bellek erişimini (RMA) için rutinler sunar.
+Yukarıda bahsedilen nedenlerden dolayı, MPI, tek taraflı iletişim olarak da bilinen, özel bellek pencerelerinde sağlandığı 
+sürece, işlemlerin diğer işlemlerdeki verilere erişebildiği, uzaktan bellek erişimi (RMA) için fonksiyonlar sunar.
+Tek taraflı iletişim bir e-postaya benzer. Bir mesaj göndermek istediğinizde mesajınız arkadaşınızın gelen kutusunda kalacak, 
+siz ise gönder düğmesine bastıktan sonra başka işlemler gerçekleştirebileceksiniz. 
+Arkadaşınız ise boş zamanlarında yolladığınız e-postayı okuyacaktır.
 
-Telekomünikasyon benzetmemize devam edecek olursak: tek taraflı iletişim bir e-postaya benzer. Mesajınız arkadaşınızın gelen kutusunda kalacak, ancak gönder düğmesine bastıktan sonra başka işlemler gerçekleştirebileceksiniz. Arkadaşınız boş zamanlarında e-postayı okuyacaktır.
-
-Tek Taraflı İletişim nasıl çalışır?
+Tek Taraflı İletişim Nasıl Çalışır?
 -----------------------------------
 
-Süreçler arasındaki her etkileşimin açık bir şekilde tanımlanması MPI için temeldir, bu nedenle basit bir değer ataması yeterli olmayacaktır. İlk olarak, hedef işlemde belleğin bir bölümünü, bu durumda işlem 1'i, işlem 0'ın işlemesi için görünür hale getirmeliyiz. Bu ayırdığımız belleği pencere olarak adlandırıyoruz.
+İşlem 0, işlem 1'e bir veri göndermek istesin. İşlemler arasındaki her etkileşimin açık bir şekilde tanımlanması MPI için temeldir, 
+bu nedenle basit bir değer ataması yeterli olmayacaktır. İlk olarak, hedef işlemde belleğin bir bölümünü, 
+bu durumda işlem 1'i, işlem 0'ın işlemesi için görünür hale getirmeliyiz. Bu ayırdığımız belleği pencere olarak adlandırıyoruz.
 
-İşlem 1'in belleğine bir pencere açıldığında, işlem 0 ona erişebilir ve onu değiştirebilir. İşlem 0, ``MPI_Put`` kullanarak yerel belleğindeki verileri işlem 1'in bellek penceresine koyabilir (depolayabilir).
-
+İşlem 1'in belleğine bir pencere açıldığında, işlem 0 ona erişebilir ve onu değiştirebilir. İşlem 0, ``MPI_Put`` 
+kullanarak yerel belleğindeki verileri işlem 1'in bellek penceresine koyabilir.
 
 .. image:: /assets/openmpi-education/images/MPI_Win_put.png
    :target: /assets/openmpi-education/images/MPI_Win_put.png
    :alt: /assets/openmpi-education/images/MPI_Win_put.png
 
-Bu görselde ayırdığımız pencereyi mavi eşkenar ile gösteriyoruz. İşlem 0 kendi belleğindeki Y değerini ``MPI_Put`` *RMA* rutinini kullanarak işlem 1'in penceresine depoluyor.
+Bu görselde ayırdığımız pencereyi mavi eşkenar ile gösteriyoruz. İşlem 0 kendi belleğindeki *Y* değerini ``MPI_Put`` *RMA* 
+fonksiyonunu kullanarak işlem 1'in penceresine depoluyor.
 
-Bir farklı senaryoda, işlem 0 bellek penceresini bazı verilerle doldurmuş olabilir: İletişimci'deki diğer herhangi bir işlem artık ``MPI_Get`` kullanarak bu verileri işlem 0'ın penceresinden  alabilir (yükleyebilir).
-
+Başka bir farklı senaryoda, işlem 0 bellek penceresini bazı verilerle, örneğin *Y* ile, doldurmuş olsun: 
+İletişimci'deki diğer herhangi bir işlem, örneğin işlem 1, artık ``MPI_Get`` *RMA* fonksiyonunu kullanarak 
+bu verileri işlem 0'ın penceresinden alabilir. 
 
 .. image:: /assets/openmpi-education/images/MPI_Win_get.png
    :target: /assets/openmpi-education/images/MPI_Win_get.png
    :alt: /assets/openmpi-education/images/MPI_Win_get.png
 
-Bellek penceresi veya basitçe pencere terimiyle, uzak bellek erişimleri için ayrılmış, her işlem için yerel olan belleğe atıfta bulunuruz. Bir pencere nesnesi bunun yerine iletişimci'deki tüm süreçlerin pencerelerinin toplamıdır ve ``MPI_Win`` tipine sahiptir.
+Yukarıda belirtildiği gibi bellek penceresi veya basitçe pencere terimiyle, uzak bellek erişimleri için ayrılmış, 
+her işlem için yerel olan belleğe atıfta bulunuruz. Bir pencere nesnesi bunun yerine iletişimci'deki tüm süreçlerin 
+pencerelerinin toplamıdır ve ``MPI_Win`` tipine sahiptir.
 
-Bunlara ek olarak, daha  pencerelerde gerçekleştirilen işlemler engellenmez yapıdadır. Engellemeyen işlemler, programcının hesaplama  iletişimi örtüşmesine izin verirken, aynı zamanda açık senkronizasyon yükünü de beraberinde getirir.
-
+Bunlara ek olarak, pencerelerde gerçekleştirilen işlemler engellenmez yapıdadır. Tıkanmasız bu işlemler, programcının 
+hesaplama ile iletişimi örtüştürmesine izin verirken, aynı zamanda açık senkronizasyon yükünü de beraberinde getirir.
 
 .. image:: /assets/openmpi-education/images/MPI_senkron.png
    :target: /assets/openmpi-education/images/MPI_senkron.png
    :alt: /assets/openmpi-education/images/MPI_senkron.png
 
-Yukarıda, MPI tek taraflı iletişim kullanan bir uygulamada pencere oluşturma, RMA rutinlerine çağrılar atma ve senkronizasyon zaman çizelgesi gösterilmektedir. İletişimci'deki her işlemde ``MPI_Win`` nesnelerinin oluşturulması, *RMA* rutinlerinin yürütülmesine izin verir. Uygulamanın güvenliğini ve doğruluğunu sağlamak için, pencereye yapılan her erişim senkronize edilmelidir. Bellek penceresiyle herhangi bir etkileşimin, senkronizasyon rutinlerine yapılan çağrılarla korunması gerektiğini unutmayın. Senkronizasyon çağrıları arasındaki olayların *dönem* olarak adlandırırız.
+Yukarıda, MPI ile tek taraflı iletişim kullanan bir uygulamada pencere oluşturma, RMA fonksiyonlarına çağrılar atma ve 
+senkronizasyon zaman çizelgesi gösterilmektedir. İletişimci'deki her işlemde ``MPI_Win`` nesnelerinin oluşturulması, 
+*RMA* fonksiyonlarının yürütülmesine izin verir. Uygulamanın güvenliğini ve doğruluğunu sağlamak için, pencereye yapılan her erişim senkronize 
+edilmelidir. Bellek penceresiyle herhangi bir etkileşimin, senkronizasyon rutinlerine yapılan çağrılarla korunması gerektiğini 
+unutmayın. Senkronizasyon çağrıları arasındaki olaylar *dönem* olarak adlandırılır.
 
-RMA Anatomisi
--------------
+RMA Sürecinin Anatomisi
+-----------------------
 
 Pencereler
 ^^^^^^^^^^
 
 MPI, bellek pencerelerinin oluşturulması için 4 **toplu** rutin sağlar:
-
 
 * ``MPI_Win_allocate`` bellek ayırır ve pencere nesnesini oluşturur.
 * ``MPI_Win_create`` daha önceden ayırılmış bellekten bir pencere objesi oluşturur.

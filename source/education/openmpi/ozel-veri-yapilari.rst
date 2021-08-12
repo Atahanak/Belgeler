@@ -30,12 +30,13 @@ bir şekilde kullanılması için gereklilikleri belirler ve derleyici de gereke
 Böylece kullanıcı için yeni oluşturulan bu veri yapısının temel veri yapılarından bir farkı yoktur, fakat bunların 
 hepsi derleme zamanında gerçekleşir.
 
-MPI'da özle veri yapılarını kullanmak için kullanıcının heterojen mimarilerde sorunsuz bir şekilde mesaj yollayıp alabilmesi için alt düzey bilgiler vermesi gerekmektedir.
+Bir kullanıcının MPI'da özel veri yapılarını kullanmak ve heterojen mimarilerde sorunsuz bir şekilde mesaj yollayıp 
+alabilmesi için alt seviye, detaylı bilgiler vermesi gerekmektedir.
 
 Özel Veri Yapılarının MPI'da Temsil Edilişi
 -------------------------------------------
 
-Veri türü imzası yeni oluşturulan ver türündeki basit verilerin türlerini depolar.
+Veri türü imzası yeni oluşturulan veri türündeki basit verilerin türlerini depolar.
 
 $Type signature[𝚃]=[𝙳𝚊𝚝𝚊𝚝𝚢𝚙𝚎0,…,𝙳𝚊𝚝𝚊𝚝𝚢𝚙𝚎𝑛−1]$
 
@@ -47,7 +48,7 @@ Yer ``displacements``\ , veri tipinin tanımladığı arabelleğe görecedir.
 
 Bir ``int``\ 'nin 4 bayt bellek aldığını varsayarsak, ``pair`` veri türünün tip haritası şöyle olur:
 
-$Typemap[𝙿𝚊𝚒𝚛]={𝚒𝚗𝚝:0,𝚌𝚑𝚊𝚛:4}$
+``Typemap[𝙿𝚊𝚒𝚛]={𝚒𝚗𝚝:0,𝚌𝚑𝚊𝚛:4}``
 
 Tür haritası ve imzası bilgisi, türün MPI'da kullanılabilmesi için yeterli değildir. Temel alınan programlama dili, temel veri türlerinin mimariye özgü hizalanmasını zorunlu kılabilir. Türü MPI'a kaydedebilmek için birkaç konsepte daha ihtiyacımız var. Bir tip haritası, 𝑚, verildiğinde aşağıdakileri tanımlayabiliriz:
 
