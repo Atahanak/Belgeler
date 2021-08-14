@@ -4,10 +4,10 @@
 
 Özel veri türleri tanımlama kabiliyeti, programcıların kodlarını okunabilirliği ve sürdürülebilirliği artıracak 
 şekilde yapılandırmasına olanak tanıdığından, modern bir programlama dilinin ayırt edici özelliklerinden biridir. 
-MPI standardı programlama dillerinin hem bu özelliğini desteklemek hem de işlemler arasında transfer edilen mesaj 
+MPI standardı, hem bu özelliği desteklemek hem de işlemler arasında transfer edilen mesaj 
 sayısını en aza indirebilmek için özel veri yapılarını desteklemektedir.
 
-Önceklikle MPI'ın hangi basit Veri yapılarını desteklediğini görelim:
+Önceklikle MPI'ın hangi basit veri yapılarını desteklediğini görelim:
 
 +---------------------------+-------------------------+
 | MPI                       | C                       |
@@ -68,31 +68,34 @@ bir şekilde kullanılması için gereklilikleri belirler ve derleyici de gereke
 Böylece kullanıcı için yeni oluşturulan bu veri yapısının temel veri yapılarından bir farkı yoktur, fakat bunların 
 hepsi derleme zamanında gerçekleşir.
 
-Bir kullanıcının MPIda özel veri yapılarını kullanmak ve heterojen mimarilerde sorunsuz bir şekilde mesaj yollayıp 
+Bir kullanıcının MPI'da özel veri yapılarını kullanmak ve heterojen mimarilerde sorunsuz bir şekilde mesaj yollayıp 
 alabilmesi için alt seviye, detaylı bilgiler vermesi gerekmektedir.
 
-Özel Veri Yapılarının MPIda Temsil Edilişi
+Özel Veri Yapılarının MPI'da Temsil Edilişi
 -------------------------------------------
 
-Veri türü imzası yeni oluşturulan veri türündeki basit verilerin türlerini depolar.
+Veri türü imzası (''Typesignature''), yeni oluşturulan veri türündeki basit verilerin türlerini depolar.
 
 .. math::
 
-   Type signature[𝚃]=[Datatype_{0},…,Datatype_{n−1}]
+   Typesignature[𝚃]=[Datatype_{0},…,Datatype_{n−1}]
 
-Tip haritası, MPI tarafından algılan data türlerini anahtar ve bunların bayt cinsinden büyülüklerini değer olarak tutar.
+Tip haritası (''Typemap''), MPI tarafından algılanan veri türlerini ve bunların bayt cinsinden büyülüklerini değer olarak tutar.
 
 .. math::
 
    Typemap[𝚃] = {Datatype_{0}: Displacement_{0},…,Datatype_{n−1}:Displacement_{n−1}}
 
-Yer ``displacements``\ , veri tipinin tanımladığı arabelleğe görecedir.
+Buradaki (``displacements``), değerleri veri tipinin tanımlandığı arabelleğe göre verilmiştir.
 
-Bir ``int``\ in 4 bayt bellek aldığını varsayarsak, ``pair`` veri türünün tip haritası şöyle olur:
+Örnek olarak bir ``int``\ in 4 bayt bellek aldığını varsayarsak, ``pair`` veri türünün tip haritası şöyle olur:
 
 ``Typemap[𝙿𝚊𝚒𝚛]={𝚒𝚗𝚝:0,𝚌𝚑𝚊𝚛:4}``
 
-Tür haritası ve imzası bilgisi, türün MPIda kullanılabilmesi için yeterli değildir. Temel alınan programlama dili, temel veri türlerinin mimariye özgü hizalanmasını zorunlu kılabilir. Türü MPIa kaydedebilmek için birkaç konsepte daha ihtiyacımız var. Bir tip haritası, 𝑚, verildiğinde aşağıdakileri tanımlayabiliriz:
+Tür haritası ve imzası bilgisi, türün MPI'da kullanılabilmesi için yeterli değildir. 
+Kullanılan programlama dili, temel veri türlerinin mimariye özgü hizalanmasını zorunlu kılabilir. 
+Türü MPI'a kaydedebilmek için birkaç bilgiye daha ihtiyacımız var. 
+Bir tip haritası, 𝑚, verildiğinde aşağıdakileri tanımlayabiliriz:
 
 **Alt Sınır:**
 
@@ -112,14 +115,20 @@ Tür haritası ve imzası bilgisi, türün MPIda kullanılabilmesi için yeterli
    
    Extent[𝑚]=UB[𝑚]−LB[𝑚]
 
-C programlama dilinde verilerin bellekte düzgün tanımlanmış adreslerde olması gerekir, başka bir deyişle verilerin hizalanması gerekir. Herhangi bir öğenin bayt cinsinden adresi, o öğenin bayt cinsinden boyutunun katı olmalıdır. Buna doğal hizalama denir. ``pair`` veri yapımız için ilk öğe bir ``int``\ 'dir ve 4 baytlık yer kaplar. Bir ``int``\ , 4 bayt sınırlarına hizalanır: bellekte yeni bir ``int`` tahsis ederken, derleyici hizalama sınırına ulaşmak için dolgu ekler. ``second`` bir karakterdir ve sadece 1 bayt gerektirir, bu yüzden de her adrese tanımlanabilir.
+C programlama dilinde verilerin bellekte düzgün tanımlanmış adreslerde olması gerekir, 
+başka bir deyişle verilerin hizalanması gerekir. Herhangi bir öğenin hafıza üzerindeki adresi, 
+o öğenin bayt cinsinden boyutunun katı olmalıdır. Buna doğal hizalama denir. ``pair`` veri yapımız için
+ilk öğe bir ``int``\ 'dir ve 4 baytlık yer kaplar. Bir ``int``\ , 4 bayt sınırlarına hizalanır: 
+bellekte yeni bir ``int`` tahsis ederken, derleyici hizalama sınırına ulaşmak için dolgu ekler. 
+``char`` bir karakterdir ve sadece 1 bayt gerektirir, bu yüzden de her adreste depolanabilir.
 
 .. math::
    p𝚊𝚒𝚛_{𝚏𝚒𝚛𝚜𝚝} → Displacement_{0} = 0, 𝚜𝚒𝚣𝚎𝚘𝚏(𝚒𝚗𝚝) = 4
 .. math::
    p𝚊𝚒𝚛_{𝚜𝚎𝚌𝚘𝚗𝚍} → Displacement_{1} = 4, 𝚜𝚒𝚣𝚎𝚘𝚏(𝚌𝚑𝚊𝚛) = 1
 
-Başka bir ``pair`` öğesi eklerken, bir sonraki ``int`` baytının uygun bir adresten başlayabilmesi için, 3 baytlık bir dolgu ile hizalama sınırına ulaşmamız gerekir. Böylece:
+Başka bir ``pair`` öğesi eklerken, bir sonraki ``int`` baytının uygun bir adresten başlayabilmesi için,
+3 baytlık bir dolgu ile hizalama sınırına ulaşmamız gerekir. Böylece:
 
 .. math::
 
@@ -138,7 +147,7 @@ Bir sonraki bölümde yukarıda anlatılan detayları göz önünde bulundurarak
 MPI ile özel veri yapısı yaratma
 --------------------------------
 
-Yukarıda C kodunu gösterdiğimiz özel veri türü, ``pair``\ , MPI'da tanımlamak için öncelikle verinin imza tipini belirtiyoruz.
+Yukarıda C kodunu gösterdiğimiz özel veri türünü, ``pair``\ , MPI'da tanımlamak için öncelikle verinin imza tipini belirtiyoruz.
 
 .. code-block:: c
 
@@ -158,7 +167,8 @@ Yukarıda C kodunu gösterdiğimiz özel veri türü, ``pair``\ , MPI'da tanıml
    MPI_Get_address(&my_pair.first, &displacements[0]);
    MPI_Get_address(&my_pair.second, &displacements[1]);
 
-Yukarda örneğini verdiğimiz ``pair`` veri türünün iki alanı var dolayısıyla ``MPI_Type_create_struct`` çağrısında ``count = 2``\ 'dir.  
+Yukarda örneğini verdiğimiz ``pair`` veri türünün iki alanı var. 
+Dolayısıyla ``MPI_Type_create_struct`` çağrısında ``count = 2``\ 'dir.  
 
 .. code-block:: c
 
@@ -166,7 +176,7 @@ Yukarda örneğini verdiğimiz ``pair`` veri türünün iki alanı var dolayıs�
    MPI_Type_create_struct(2, block_lengths, displacements, typesig, &mpi_pair);
    MPI_Type_commit(&mpi_pair);
 
-Veri yapısının kullandıktan sonra serbest bırakıyoruz.
+Veri yapısını kullandıktan sonra serbest bırakıyoruz.
 
 .. code-block:: c
 
@@ -175,7 +185,8 @@ Veri yapısının kullandıktan sonra serbest bırakıyoruz.
 Paketleme ve Çözme
 ------------------
 
-MPI yapıları aynı olmayan verileri birlikte yollayabilmek için paketleme ve çözme alt yapısı sağlamaktadır. Böylece birlikte yollamak istediğimiz farklı veri yapılarını her zaman yeni bir veri yapısı tanımlayarak yollamak zorunda kalmayız. Paketleme sonucu ortaya çıkan paketlenmiş arabellek ``MPI_PACKED`` türündedir ve MPI tarafından tanınan herhangi bir tür heterojen temel veri türü koleksiyonunu içerebilir.
+MPI yapıları, aynı olmayan verileri birlikte yollayabilmek için paketleme ve çözme alt yapısı sağlamaktadır. 
+Böylece, birlikte yollamak istediğimiz farklı veri yapılarını her zaman yeni bir veri yapısı tanımlayarak yollamak zorunda kalmayız. Paketleme sonucu ortaya çıkan paketlenmiş arabellek ``MPI_PACKED`` türündedir ve MPI tarafından tanınan herhangi bir tür heterojen temel veri türü koleksiyonunu içerebilir.
 
 
 .. image:: /assets/openmpi-education/images/pack-unpack.png
@@ -183,7 +194,8 @@ MPI yapıları aynı olmayan verileri birlikte yollayabilmek için paketleme ve 
    :alt: /assets/openmpi-education/images/pack-unpack.png
 
 
-Yukarıdaki figürden de gösterildiği gibi farklı veri yapılarına ait olan değerler tek bir mesaja bitişik bir şekilde paketlenir ve alıcı da aynı şekilde çözülür.
+Yukarıdaki şekilde de gösterildiği gibi, farklı veri yapılarına ait olan değerler tek bir mesajla bitişik 
+bir şekilde paketlenir ve alıcıda da aynı şekilde çözülür.
 
 MPI_Pack
 ^^^^^^^^
@@ -198,19 +210,22 @@ MPI_Pack
                 int *position,
                 MPI_Comm comm)
 
-**inbuf:** yollayacağımız verinin işaretçisi
+``inbuf``: yollayacağımız verinin işaretçisi
 
-**incount:** paketleyeceğimiz veri miktarı
+``incount``: paketleyeceğimiz veri miktarı
 
-**datatype:** paketleyeceğimiz verinin türü
+``datatype``: paketleyeceğimiz verinin türü
 
-**outbuf:** yollayacağımız mesajı temsil eden arabelleğinin işaretçisi
+``outbuf``: yollayacağımız mesajı temsil eden arabelleğinin işaretçisi
 
-**outsize:** yollayacağımız mesajın büyüklüğü
+``outsize``: yollayacağımız mesajın büyüklüğü
 
-**position:** ``outbuf`` içindeki konumları tanımlayan bir **giriş/çıkış** parametresidir. ``inbuf``\ 'taki veriler ``outbuf`` + ``*position``\ 'a kopyalanacaktır. Fonksiyon geri döndükten sonra, ``*position`` değeri, çıkış verisindeki yeni kopyalanan verileri izleyen ilk konumu gösterir. Bu, ``MPI_Pack``\ 'e bir sonraki çağrıya konum olarak geçmek için kullanışlıdır.
+``position``: ``outbuf`` içindeki konumları tanımlayan bir **giriş/çıkış** parametresidir. 
+``inbuf``\ 'taki veriler ``outbuf`` + ``*position``\ 'a kopyalanacaktır. Fonksiyon geri döndükten sonra, 
+``*position`` işaretçisinin değeri, çıkış verisindeki yeni kopyalanan verileri izleyen ilk konumu gösterir. 
+Bu, ``MPI_Pack``\ 'e bir sonraki çağrıya konum olarak geçmek için kullanışlıdır.
 
-**comm:** programlar arası iletişimi sağlayan obje
+``comm``: programlar arası iletişimi sağlayan obje
 
 MPI_Unpack
 ^^^^^^^^^^
@@ -225,19 +240,22 @@ MPI_Unpack
                   MPI_Datatype datatype,
                   MPI_Comm comm)
 
-**inbuf:** aldığımız mesajı temsil eden arabelleğin işaretçisi
+``inbuf``: aldığımız mesajı temsil eden arabelleğin işaretçisi
 
-**insize:** aldığımız mesajın büyüklüğü
+``insize``: aldığımız mesajın büyüklüğü
 
-**position:** ``outbuf`` içindeki konumları tanımlayan bir giriş/çıkış parametresidir. ``inbuf`` veriler ``outbuf + *position`` kopyalanacaktır. Fonksiyon geri döndükten sonra, ``*position`` değeri, çıkış verisindeki yeni kopyalanan verileri izleyen ilk konumu gösterir. Bu, ``MPI_Pack``\ 'e bir sonraki çağrıya konum olarak geçmek için kullanışlıdır.
+``position``: ``outbuf`` içindeki konumları tanımlayan bir giriş/çıkış parametresidir. 
+``inbuf`` veriler ``outbuf + *position`` kopyalanacaktır. Fonksiyon geri döndükten sonra, 
+``*position`` işaretçisinin değeri, çıkış verisindeki yeni kopyalanan verileri izleyen ilk konumu gösterir. 
+Bu, ``MPI_Pack``\ 'e bir sonraki çağrıya konum olarak geçmek için kullanışlıdır.
 
-**outbuf:** çıkardığımız veriyi temsil eden arabelleğin işaretçisi
+``outbuf``: çıkardığımız veriyi temsil eden arabelleğin işaretçisi
 
-**outcount:** çıkardığımız verideki eleman miktarı
+``outcount``: çıkardığımız verideki eleman miktarı
 
-**datatype:** çıkardığımız verinin türü
+``datatype``: çıkardığımız verinin türü
 
-**comm:** programlar arası iletişimi sağlayan obje
+``comm``: programlar arası iletişimi sağlayan obje
 
 Pokemonlar ile Paketleme/Çıkarma Örneği
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
