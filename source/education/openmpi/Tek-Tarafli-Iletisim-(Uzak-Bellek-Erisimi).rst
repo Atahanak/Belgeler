@@ -33,7 +33,7 @@ kullanarak yerel belleğindeki verileri işlem 1'in bellek penceresine koyabilir
 Bu görselde ayırdığımız pencereyi mavi eşkenar ile gösteriyoruz. İşlem 0 kendi belleğindeki *Y* değerini ``MPI_Put`` *RMA* 
 fonksiyonunu kullanarak işlem 1'in penceresine depoluyor.
 
-Başka bir farklı senaryoda, işlem 0 bellek penceresini bazı verilerle, örneğin *Y* ile, doldurmuş olsun: 
+Başka bir senaryoda, işlem 0 bellek penceresini bazı verilerle, örneğin *Y* ile, doldurmuş olsun: 
 İletişimci'deki diğer herhangi bir işlem, örneğin işlem 1, artık ``MPI_Get`` *RMA* fonksiyonunu kullanarak 
 bu verileri işlem 0'ın penceresinden alabilir. 
 

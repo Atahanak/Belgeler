@@ -133,7 +133,7 @@ Başka bir ``pair`` öğesi eklerken, bir sonraki ``int`` baytının uygun bir a
 
    Extent[𝙿𝚊𝚒𝚛] = UB[𝙿𝚊𝚒𝚛]−LB[𝙿𝚊𝚒𝚛] = 8
 
-Bir sonraki bölümde yukarıda anlatılan detayları göz önünde bulundurarak bir MPI veri türü tanımlaycağız.
+Bir sonraki bölümde yukarıda anlatılan detayları göz önünde bulundurarak bir MPI veri türü tanımlayacağız.
 
 MPI ile özel veri yapısı yaratma
 --------------------------------
