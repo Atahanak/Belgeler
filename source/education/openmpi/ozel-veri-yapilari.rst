@@ -9,7 +9,45 @@ sayısını en aza indirebilmek için özel veri yapılarını desteklemektedir.
 
 Önceklikle MPI'ın hangi basit Veri yapılarını desteklediğini görelim:
 
-`Desteklenen Veri Yapıları <https://www.notion.so/3c320768e3194ef2b60d8a84841819e6>`_
++---------------------------+-------------------------+
+| MPI                       | C                       |
++===========================+=========================+
+| MPI_CHAR                  | unsigned char           |
++---------------------------+-------------------------+
+| MPI_FLOAT                 | float                   |
++---------------------------+-------------------------+
+| MPI_DOUBLE                | double                  |
++---------------------------+-------------------------+
+| MPI_LONG_DOUBLE           | long double             |
++---------------------------+-------------------------+
+| MPI_WCHAR                 | wchar_t                 |
++---------------------------+-------------------------+
+| MPI_SHORT                 | short                   |
++---------------------------+-------------------------+
+| MPI_INT                   | int                     |
++---------------------------+-------------------------+
+| MPI_LONG                  | long                    |
++---------------------------+-------------------------+
+| MPI_LONG_LONG_INT         | long long               |
++---------------------------+-------------------------+
+| MPI_SIGNED_CHAR           | signed char             |
++---------------------------+-------------------------+
+| MPI_UNSIGNED_LONG         | unsigned long           |
++---------------------------+-------------------------+
+| MPI_UNSIGNED_LONG_LONG    | unsigned long long      |
++---------------------------+-------------------------+
+| MPI_C_COMPLEX             | float _Complex          |
++---------------------------+-------------------------+
+| MPI_C_DOUBLE_COMPLEX      | double _Complex         |
++---------------------------+-------------------------+
+| MPI_C_LONG_DOUBLE_COMPLEX | long double _Complex    |
++---------------------------+-------------------------+
+| MPI_PACKED                |                         |
++---------------------------+-------------------------+
+| MPI_BYTE                  |                         |
++---------------------------+-------------------------+
+
+.. `Desteklenen Veri Yapıları <https://www.notion.so/3c320768e3194ef2b60d8a84841819e6>`_
 
 C programlama dilinde veri tipleri, standart tarafından tanımlanmış ve derleyici tarafından icra edilen, basit yapılardır.
 MPI data yapıları ise derleyici tarafından farklı veri yapıları olarak gözükmez, özel veri yapılarının hepsi derleyici 
@@ -30,55 +68,70 @@ bir şekilde kullanılması için gereklilikleri belirler ve derleyici de gereke
 Böylece kullanıcı için yeni oluşturulan bu veri yapısının temel veri yapılarından bir farkı yoktur, fakat bunların 
 hepsi derleme zamanında gerçekleşir.
 
-Bir kullanıcının MPI'da özel veri yapılarını kullanmak ve heterojen mimarilerde sorunsuz bir şekilde mesaj yollayıp 
+Bir kullanıcının MPIda özel veri yapılarını kullanmak ve heterojen mimarilerde sorunsuz bir şekilde mesaj yollayıp 
 alabilmesi için alt seviye, detaylı bilgiler vermesi gerekmektedir.
 
-Özel Veri Yapılarının MPI'da Temsil Edilişi
+Özel Veri Yapılarının MPIda Temsil Edilişi
 -------------------------------------------
 
 Veri türü imzası yeni oluşturulan veri türündeki basit verilerin türlerini depolar.
 
-$Type signature[𝚃]=[𝙳𝚊𝚝𝚊𝚝𝚢𝚙𝚎0,…,𝙳𝚊𝚝𝚊𝚝𝚢𝚙𝚎𝑛−1]$
+.. math::
+
+   Type signature[𝚃]=[Datatype_{0},…,Datatype_{n−1}]
 
 Tip haritası, MPI tarafından algılan data türlerini anahtar ve bunların bayt cinsinden büyülüklerini değer olarak tutar.
 
-$Typemap[𝚃]={𝙳𝚊𝚝𝚊𝚝𝚢𝚙𝚎0:Displacement0,…,𝙳𝚊𝚝𝚊𝚝𝚢𝚙𝚎𝑛−1:Displacement𝑛−1}$
+.. math::
+
+   Typemap[𝚃] = {Datatype_{0}: Displacement_{0},…,Datatype_{n−1}:Displacement_{n−1}}
 
 Yer ``displacements``\ , veri tipinin tanımladığı arabelleğe görecedir.
 
-Bir ``int``\ 'nin 4 bayt bellek aldığını varsayarsak, ``pair`` veri türünün tip haritası şöyle olur:
+Bir ``int``\ in 4 bayt bellek aldığını varsayarsak, ``pair`` veri türünün tip haritası şöyle olur:
 
 ``Typemap[𝙿𝚊𝚒𝚛]={𝚒𝚗𝚝:0,𝚌𝚑𝚊𝚛:4}``
 
-Tür haritası ve imzası bilgisi, türün MPI'da kullanılabilmesi için yeterli değildir. Temel alınan programlama dili, temel veri türlerinin mimariye özgü hizalanmasını zorunlu kılabilir. Türü MPI'a kaydedebilmek için birkaç konsepte daha ihtiyacımız var. Bir tip haritası, 𝑚, verildiğinde aşağıdakileri tanımlayabiliriz:
+Tür haritası ve imzası bilgisi, türün MPIda kullanılabilmesi için yeterli değildir. Temel alınan programlama dili, temel veri türlerinin mimariye özgü hizalanmasını zorunlu kılabilir. Türü MPIa kaydedebilmek için birkaç konsepte daha ihtiyacımız var. Bir tip haritası, 𝑚, verildiğinde aşağıdakileri tanımlayabiliriz:
 
 **Alt Sınır:**
 
-Veri türünün kapsadığı ilk baytı temsil eder.
-
-$LB[𝑚]=min_𝑗[Displacement_𝑗]$
+.. math::
+   
+   LB[𝑚]=min_{j}[Displacement_{j}]
 
 **Üst Sınır:**
 
-$UB[𝑚]=max_𝑗[Displacement_𝑗+𝚜𝚒𝚣𝚎𝚘𝚏(Datatype_𝑗)]+Padding$
+.. math:: 
+   
+   UB[𝑚]=max_{j}[Displacement_{j}+sizeof(Datatype_{j})]+Padding
 
 **Boyut:**
 
-$Extent[𝑚]=UB[𝑚]−LB[𝑚]$
+.. math::
+   
+   Extent[𝑚]=UB[𝑚]−LB[𝑚]
 
 C programlama dilinde verilerin bellekte düzgün tanımlanmış adreslerde olması gerekir, başka bir deyişle verilerin hizalanması gerekir. Herhangi bir öğenin bayt cinsinden adresi, o öğenin bayt cinsinden boyutunun katı olmalıdır. Buna doğal hizalama denir. ``pair`` veri yapımız için ilk öğe bir ``int``\ 'dir ve 4 baytlık yer kaplar. Bir ``int``\ , 4 bayt sınırlarına hizalanır: bellekte yeni bir ``int`` tahsis ederken, derleyici hizalama sınırına ulaşmak için dolgu ekler. ``second`` bir karakterdir ve sadece 1 bayt gerektirir, bu yüzden de her adrese tanımlanabilir.
 
-$p𝚊𝚒𝚛.𝚏𝚒𝚛𝚜𝚝→Displacement0=0,𝚜𝚒𝚣𝚎𝚘𝚏(𝚒𝚗𝚝)=4$
-
-$p𝚊𝚒𝚛.𝚜𝚎𝚌𝚘𝚗𝚍→Displacement1=4,𝚜𝚒𝚣𝚎𝚘𝚏(𝚌𝚑𝚊𝚛)=1$
+.. math::
+   p𝚊𝚒𝚛_{𝚏𝚒𝚛𝚜𝚝} → Displacement_{0} = 0, 𝚜𝚒𝚣𝚎𝚘𝚏(𝚒𝚗𝚝) = 4
+.. math::
+   p𝚊𝚒𝚛_{𝚜𝚎𝚌𝚘𝚗𝚍} → Displacement_{1} = 4, 𝚜𝚒𝚣𝚎𝚘𝚏(𝚌𝚑𝚊𝚛) = 1
 
 Başka bir ``pair`` öğesi eklerken, bir sonraki ``int`` baytının uygun bir adresten başlayabilmesi için, 3 baytlık bir dolgu ile hizalama sınırına ulaşmamız gerekir. Böylece:
 
-$LB[𝙿𝚊𝚒𝚛]=min[0,4]=0$
+.. math::
 
-$UB[𝙿𝚊𝚒𝚛]=max[0+4,4+1]+3=8$
+   LB[𝙿𝚊𝚒𝚛] = min[0,4] = 0
 
-$Extent[𝙿𝚊𝚒𝚛]=UB[𝙿𝚊𝚒𝚛]−LB[𝙿𝚊𝚒𝚛]=8$
+.. math::
+   
+   UB[𝙿𝚊𝚒𝚛] = max[0+4,4+1]+3 = 8
+
+.. math::
+
+   Extent[𝙿𝚊𝚒𝚛] = UB[𝙿𝚊𝚒𝚛]−LB[𝙿𝚊𝚒𝚛] = 8
 
 Bir sonraki bölümde yukarıda anlatılan detayları göz önünde bulundurarak bir MPI veri türü tanımlaycağız.
 
