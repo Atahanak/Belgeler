@@ -15,7 +15,7 @@ Bu dersin kapsamında ``intracommunicator``\ 'lar ile ilgileneceğiz ve bunlara 
 Bir iletişimci temel iki objeden oluşur:
 
 
-* Grup (group): sıralı bir işlem koleksiyonu. Gruptaki her işleme, negatif olmayan bir tam sayı olan bir sıra atanır. Sıralama, gruptaki her süreci benzersiz bir şekilde tanımlar.
+* Grup (group): sıralı bir işlem koleksiyonu. Gruptaki her işleme, negatif olmayan bir tam sayı olan bir sıra numarası atanır. Bu sıralama, gruptaki her işlemi benzersiz bir şekilde tanımlar.
 * Bağlam (context): her bir iletişimciyi benzersiz şekilde tanımlayan sistem tanımlı bir objedir. Bağlam iletişimci için benzersiz olduğu için aynı grup birden fazla iletişimciye ait olabilir.
 
 ``MPI_COMM_WORLD`` MPI kütüphanesi tarafından önceden tanımlanmış iletişimcidir.
