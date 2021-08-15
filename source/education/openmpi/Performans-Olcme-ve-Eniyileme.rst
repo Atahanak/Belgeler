@@ -4,15 +4,32 @@ Performans Ölçme ve Eniyileme
 
 ..
 
-   We should forget about small efficiencies, say about 97% of the time: premature optimization is the root of all evil. - Donald Knuth
+..  We should forget about small efficiencies, say about 97% of the time: premature optimization is the root of all evil. - Donald Knuth
+.. Turing Ödülü sahibi meşhur Donald Knuth tarafından da belirtildiği gibi 
+Kodumuzdaki darboğazları belirlemek yüksek performanslı programlamanın olmazsa olmazıdır. 
+Bir kodu optimize etmeden önce performansını ölçerek profillememiz gerekir ki optimize etmeye 
+nerden başlayacağımızı belirleyelim. Günümüzde programların performansını ölçebileceğimiz
+kuvvetli araçlar bulunmaktadır. Bu dokümanda Open MPI'ın sağladığı *PMPI* arayüzünü kullanarak 
+MPI işlemlerini kendimiz profilleyeceğiz. Buna ek olarak yaptığımız hesaplamaları da profilleyerek 
+MPI işlemlerinin bir darboğaz oluşturup oluşturmadığını araştıracağız.
+
+Optimizasyon İş Akışı
+---------------------
+
+İster paralel ister seri olsun, bir kodu optimize etmek için genel iş akışı aşağıdaki gibidir:
 
 
-Turing Ödülü sahibi meşhur Donald Knuth tarafından da belirtildiği gibi kodumuzdaki sık boğazları belirlemek yüksek performanslı programlamanın olmazsa olmazıdır. Kodumuzu optimize etmeden önce performansını ölçerek profillememiz gerekir ki optimize etmeye nerden başlayacağımızı belirleyelim. Günümüzde kodumuzun performansını ölçebileceğimiz kuvvetli araçlar bulunmaktadır. Fakat bu dokümanda Open MPI'ın sağladığı *PMPI* arayüzünü kullanarak MPI işlemlerini kendimiz profilleyeceğiz. Buna ek olarak yaptığımız hesaplamaları da profilleyerek MPI işlemlerinin bir sık boğaz oluşturup oluşturmadığını araştıracağız.
+#. Profillemek.
+#. Optimize etmek.
+#. Doğruluğunu kontrol etmek.
+#. Verimliliği ölçmek.
+#. Kazanç sağlayamayana kadar birinci adıma tekrar geri dönme.
+
 
 PMPI nedir?
 -----------
 
-Her standart MPI işlemini, bir ``MPI_`` veya ``PMPI_`` öneki ile çağrılabilir. Örneğin, ``MPI_Send()`` veya ``PMPI_Send()``\ 'i çağırabilirsiniz. MPI standardının bu özelliği, eşdeğer ``PMPI_`` işlevini çağıran MPI_ öneki ile işlevlerin yazılmasına izin verir. Spesifik olarak, bu şekilde yazılan bir işlev, standart işlevin davranışına ve eklemek istediğiniz diğer davranışlara sahiptir. Bu, MPI performans analizi için iki şekilde önemlidir:
+Her standart MPI işlemi, ``MPI_`` veya ``PMPI_`` öneki ile çağrılabilir. Örneğin, ``MPI_Send()`` veya ``PMPI_Send()``\ 'i çağırabilirsiniz. MPI standardının bu özelliği, eşdeğer ``PMPI_`` işlevini çağıran MPI_ öneki ile işlevlerin yazılmasına izin verir. Spesifik olarak, bu şekilde yazılan bir işlev, standart işlevin davranışına ve eklemek istediğiniz diğer davranışlara sahiptir. Bu, MPI performans analizi için iki şekilde önemlidir:
 
 
 #. İlk olarak, birçok performans analizi aracı *PMPI*\ 'den yararlanır. Programınız tarafından yapılan MPI aramalarını yakalarlar. PMPI işlevlerini çağırarak ilişkili mesaj iletme çağrılarını gerçekleştirirler, ancak aynı zamanda önemli performans verilerini de yakalarlar.
@@ -21,7 +38,9 @@ Her standart MPI işlemini, bir ``MPI_`` veya ``PMPI_`` öneki ile çağrılabil
 Profil Oluşturma
 ----------------
 
-Aşağıdaki programda birden fazla işlem kullanarak $pi$ değerini hesaplıyoruz. Hesaplamanın duyarlılığını ``num_steps`` değişkeni ile belirliyoruz. Bu değişken aynı zamanda toplamda yaptığımız işlem saysını da etkiliyor.
+Aşağıdaki programda birden fazla işlem kullanarak *pi* değerini hesaplıyoruz. 
+Hesaplamanın duyarlılığını ``num_steps`` değişkeni ile belirliyoruz. 
+Bu değişken aynı zamanda toplamda yaptığımız işlem saysını da etkiler.
 
 MPI Profilleme Örnek
 ^^^^^^^^^^^^^^^^^^^^
@@ -121,16 +140,7 @@ MPI Profilleme Örnek
    Process [2], total bytes 8, took 0.024124
    Process [2], total comput time 0.375207
 
-Yukarıdaki çıktıda da görüldüğü üzere programın çalışma süresinin çoğunluğunu $pi$ hesaplaması almakta. Bu durumda MPI işlemlerini optimize etmemizi gerektirecek bir durum bulunmamakta. ``num_steps`` değişkeni ile oynayarak iletişim ve hesaplama sürelerinin nasıl değiştiğini inceleyebilirsiniz.
+Yukarıdaki çıktıda da görüldüğü üzere programın çalışma süresinin çoğunluğununu *pi* hesaplaması almaktadır. 
+Bu durumda MPI işlemlerini optimize etmemizi gerektirecek bir durum bulunmamaktadır. ``num_steps`` değişkeni 
+ile oynayarak iletişim ve hesaplama sürelerinin nasıl değiştiğini inceleyebilirsiniz.
 
-Optimizasyon İş Akışı
----------------------
-
-İster paralel ister seri olsun, bir kodu optimize etmek için genel iş akışı aşağıdaki gibidir:
-
-
-#. Profillemek.
-#. Optimize etmek.
-#. Doğruluğunu kontrol etmek.
-#. Verimliliği ölçmek.
-#. Kazanç sağlayamayana kadar birinici adıma tekrar geri dönme.

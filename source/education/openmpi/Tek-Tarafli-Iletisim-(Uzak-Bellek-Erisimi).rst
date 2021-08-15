@@ -33,7 +33,7 @@ kullanarak yerel belleğindeki verileri işlem 1'in bellek penceresine koyabilir
 Bu görselde ayırdığımız pencereyi mavi eşkenar ile gösteriyoruz. İşlem 0 kendi belleğindeki *Y* değerini ``MPI_Put`` *RMA* 
 fonksiyonunu kullanarak işlem 1'in penceresine depoluyor.
 
-Başka bir senaryoda, işlem 0 bellek penceresini bazı verilerle, örneğin *Y* ile, doldurmuş olsun: 
+Başka bir farklı senaryoda, işlem 0 bellek penceresini bazı verilerle, örneğin *Y* ile, doldurmuş olsun: 
 İletişimci'deki diğer herhangi bir işlem, örneğin işlem 1, artık ``MPI_Get`` *RMA* fonksiyonunu kullanarak 
 bu verileri işlem 0'ın penceresinden alabilir. 
 
@@ -64,12 +64,12 @@ RMA Sürecinin Anatomisi
 Pencereler
 ^^^^^^^^^^
 
-MPI, bellek pencerelerinin oluşturulması için 4 **toplu** rutin sağlar:
+MPI, bellek pencerelerinin oluşturulması için 4 **toplu** (gruptaki her işlem tarafından çalıştırılan) rutin sağlar:
 
-* ``MPI_Win_allocate`` bellek ayırır ve pencere nesnesini oluşturur.
-* ``MPI_Win_create`` daha önceden ayırılmış bellekten bir pencere objesi oluşturur.
-* ``MPI_Win_allocate_shared``
-* ``MPI_Win_create_dynamic``
+* ``MPI_Win_allocate``: bellek ayırır ve tek taraflı iletişim için pencere nesnesini oluşturur.
+* ``MPI_Win_create``: tek taraflı iletişim için daha önceden ayırılmış bellekten bir pencere objesi oluşturur.
+* ``MPI_Win_allocate_shared``: tek taraflı iletişim ve paylaşımlı hafıza erişimi için pencere nesnesini oluşturur.
+* ``MPI_Win_create_dynamic``: tek taraflı iletişim için pencere oluşturur. Bu pencere RMA operasyonları için kullanabilen bir bellekle ilişkilendirilebilir.
 
 ``MPI_Win`` tipi bir tanıtıcı, iletişimcideki'deki tüm sıralarda uzaktan işlemler için kullanılabilir hale getirilen belleği yönetir. ``MPI_Win_free`` ile kullanıldıktan sonra bellek pencereleri serbest bırakılmalıdır.
 
@@ -77,7 +77,6 @@ Yükleme / Saklama
 ^^^^^^^^^^^^^^^^^
 
 Uzak pencerelerde veri yüklemek veya saklamak için bir köken ve bir hedef süreç belirleyebiliriz. İki taraflı iletişimden farklı olarak, kaynak işlem veri aktarımını, verilerin nereden geldiği ve nereye gideceğini, tam olarak belirtir. Bu amaç için üç ana MPI rutini grubu vardır:
-
 
 * Koymak için: ``MPI_Put`` and ``MPI_Rput``
 * Almak için: ``MPI_Put`` and ``MPI_Rget``
@@ -104,17 +103,17 @@ Pencere Yaratmak
                         void *baseptr,
                         MPI_Win *win)
 
-**size:** bayt olarak ayırılacak belleğin büyüklüğü.
+``size``: bayt olarak ayırılacak belleğin büyüklüğü.
 
-**disp_uint:** yer değiştirme birimi, özellikle heterojen sistemler için gerekli, 1 olduğunda veri bayt olarak işlem görür.
+``disp_uint``: yer değiştirme birimi, özellikle heterojen sistemler için gerekli, 1 olduğunda veri bayt olarak işlem görür.
 
-**info:** MPI uygulamasına optimizasyon ipuçları sağlamak için kullanılabilecek bir bilgi nesnesi. ``MPI_INFO_NULL`` kullanmak her zaman doğrudur.
+``info``: MPI uygulamasına optimizasyon ipuçları sağlamak için kullanılabilecek bir bilgi nesnesi. ``MPI_INFO_NULL`` kullanmak her zaman doğrudur.
 
-**comm:** programlar arası iletişimi sağlayan obje
+``comm``: programlar arası iletişimi sağlayan obje
 
-**baseptr:** pencere için ayrılacak belliğin işaretçisi
+``baseptr``: pencere için ayrılacak belliğin işaretçisi
 
-**win:** *RMA* işlemlerinde kullanılacak pencere objesi
+``win``: *RMA* işlemlerinde kullanılacak pencere objesi
 
 .. code-block:: c
 
@@ -125,7 +124,7 @@ Pencere Yaratmak
                       MPI_Comm comm,
                       MPI_Win *win)
 
-**base:** pencere için ayrılacak belliğin işaretçisi
+``base``: pencere için ayrılacak belliğin işaretçisi
 
 ``MPI_Win_allocate`` hem bellek ayırma hem de pencere yaratma işlemlerini gerçekleştirirken, ``MPI_Win_create`` ise hali hazırda ayrılmış bir bellek üzerinde pencere yaratır.
 
@@ -154,7 +153,13 @@ RMA Aktarım Rutinleri
                MPI_Datatype target_datatype,
                MPI_Win win)
 
-Hem ``MPI_Put`` hem de ``MPI_Get`` engelleyici değildir: senkronizasyon rutinlerine yapılan bir çağrı ile tamamlanırlar. İki işlev aynı argüman listesine sahiptir. ``MPI_Send`` ve ``MPI_Recv``\ 'e benzer şekilde, veriler adres, sayı ve veri tipi üçlüsü ile belirlenir. Ana işlemdeki veriler için bu: ``origin_addr``\ , ``origin_count``\ , ``origin_datatype``. Hedef işlemde, arabelleği yer değiştirme, sayım ve veri türü açısından tanımlarız: ``target_disp``\ , ``target_count``\ , ``target_datatype``. Hedef süreçteki ara belleğin adresi, ``MPI_Win`` nesnesinin temel adresi ve yer değiştirme birimi kullanılarak hesaplanır:
+Hem ``MPI_Put`` hem de ``MPI_Get`` tıkanmasız  değildir: 
+senkronizasyon rutinlerine yapılan bir çağrı ile tamamlanırlar. İki işlev aynı argüman 
+listesine sahiptir. ``MPI_Send`` ve ``MPI_Recv``\ 'e benzer şekilde, veriler adres, 
+sayı ve veri tipi üçlüsü ile belirlenir. Ana işlemdeki veriler için bu üçlü şu şekildedir: ``origin_addr``\ , ``origin_count``\ , 
+``origin_datatype``. Hedef işlemde, arabelleği yer değiştirme, sayım ve veri türü açısından tanımlarız 
+(``target_disp``\ , ``target_count``\ , ``target_datatype``). Hedef süreçteki ara belleğin adresi, 
+``MPI_Win`` nesnesinin temel adresi ve yer değiştirme birimi kullanılarak hesaplanır:
 
 .. code-block:: c
 
@@ -172,7 +177,12 @@ Hem ``MPI_Put`` hem de ``MPI_Get`` engelleyici değildir: senkronizasyon rutinle
                       MPI_Op op,
                       MPI_Win win)
 
-``MPI_Accumulate`` için bağımsız değişken listesi, hedef işlem üzerinde hangi indirgeme işleminin yürütüleceğini belirten ``MPI_Op`` tipindeki ``op`` parametresi dışında ``MPI_Put`` ile aynıdır. Bu rutin element bazında atomiktir: birden fazla süreçten erişimler belirli bir sırayla seri hale getirilecek ve bu nedenle hiçbir yarış koşulu oluşamaz.  İndirgemeler yalnızca, işlem verilen veri türü için ilişkisel ve değişmeliyse belirleyicidir, bu yüzden dikkatli olmanız gerekir. Örneğin, ``MPI_SUM`` ve ``MPI_PROD``\ , kayan nokta (\ *floating point*\ ) sayıları için ne ilişkisel ne de değişmelidir!
+``MPI_Accumulate`` için bağımsız değişken listesi, hedef işlem üzerinde hangi indirgeme işleminin 
+yürütüleceğini belirten ``MPI_Op`` tipindeki ``op`` parametresi dışında ``MPI_Put`` ile aynıdır. 
+Bu rutin element bazında atomiktir: birden fazla süreçten erişimler belirli bir sırayla seri hale 
+getirilir ve bu nedenle, hiçbir yarış koşulu (race condition) oluşamaz.  İndirgemeler yalnızca, işlem verilen veri 
+türü için ilişkisel ve değişmeliyse belirleyicidir, bu yüzden dikkatli olmanız gerekir. 
+Örneğin, ``MPI_SUM`` ve ``MPI_PROD``\ , kayan nokta (\ *floating point*\ ) sayıları için ne ilişkisel ne de değişmelidir!
 
 Senkronizasyon Rutinleri
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -191,13 +201,15 @@ Senkronizasyon Rutinleri
                     int assert,
                     MPI_Win win)
 
-**lock_type:** ``MPI_LOCK_EXCLUSIVE`` veya ``MPI_LOCK_SHARED`` olabilir. ``MPI_LOCK_EXCLUSIVE`` bir sıraya özgü bir kilit sağlarken, ``MPI_LOCK_SHARED`` is bütün sıralar belleğe erişebilirler.
+``lock_type``: ``MPI_LOCK_EXCLUSIVE`` veya ``MPI_LOCK_SHARED`` olabilir. 
+``MPI_LOCK_EXCLUSIVE`` bir sıraya özgü bir kilit sağlarken, ``MPI_LOCK_SHARED`` ile bütün sıralar belleğe erişebilirler.
 
-**rank:** penceresi kilitlenicek işlemin sırası.
+``rank``: penceresi kilitlenecek işlemin sırası.
 
-**assert:** MPI kitaplığına optimizasyon ipuçları sağlamak için bu bağımsız değişkeni kullanırız. Bu argümanı ``0`` olarak atamak her zaman doğrudur.
+``assert``: MPI kitaplığına optimizasyon ipuçları sağlamak için bu bağımsız değişkeni kullanırız. 
+Bu argümanı ``0`` olarak atamak her zaman doğrudur.
 
-**win:** pencere objesi
+``win``: pencere objesi
 
 .. code-block:: c
 
