@@ -26,5 +26,19 @@ bilgiler verilecek, ve *MPI* kullanarak programlarınızı nasıl hızlandırabi
     Tek-Tarafli-Iletisim-(Uzak-Bellek-Erisimi).rst
     Performans-Olcme-ve-Eniyileme.rst
 
+<<<<<<< HEAD
 Bu eğitim materyali PDC ve ENCCS Yüksek Başarımlı Hesaplama Merkezleri'nin `başlangıç <https://pdc-support.github.io/introduction-to-mpi/>`_  
 ve `orta düzey <https://enccs.github.io/intermediate-mpi/>`_ eğitim materyalinden yararlanarak, EuroCC projesi için TRUBA üzerinde hazırlanmıştır.
+=======
+
+Yakında eklenecek eğitimler:
+
+* Paralel Paradigmalar ve Paralel Algoritmalar
+* Sanal Topolojiler
+* MPI-2 ve MPI-3
+* Performans Ölçme ve Eniyileme
+
+----
+
+Bu eğitim materyali `başlangıç <https://pdc-support.github.io/introduction-to-mpi/>`_ ve `orta düzey <https://enccs.github.io/intermediate-mpi/>`_ eğitim materyalinden yararlanarak, EuroCC projesi için TRUBA üzerinde hazırlanmıştır.
+>>>>>>> ee65f899c69a105a692b4fb00486b0cb453c0afa

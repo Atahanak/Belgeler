@@ -1,12 +1,14 @@
+.. _lammps_install_truba:
+
 ========================================
 TRUBA'da LAMMPS Kurulumu
 ========================================
 
---------------------------
-Barbun Node'unda Kurulum
---------------------------
+------------------------------------
+Barbun Hesaplama Kümesi'nde Kurulum
+------------------------------------
 
-Kurulumu ``barbun`` kuyruğu için optimize bir şekilde kurmak istiyorsanız öncelikle ``srun`` komutu ile ``barbun`` kuyruğundaki 1 tane makineden 4 tane CPU'yu (barbun kümesindeki cpu kullanımı için bakınız : :ref:`barbun-node`)   kendi kullanıcınız için interaktif olarak ayırabilirsiniz. Aşağıdaki komutu yazdığınızda bekleme listesine gireceksiniz. Sıranız geldiğinde doğrudan ilgili node'a bağlanacaksınız. 
+Kurulumu ``barbun`` kuyruğu için optimize bir şekilde kurmak istiyorsanız öncelikle ``srun`` komutu ile ``barbun`` kuyruğundaki 1 tane makineden 4 tane CPU'yu (Barbun kümesindeki CPU kullanımı için bakınız : :ref:`barbun-node`)   kendi kullanıcınız için interaktif olarak ayırabilirsiniz. Aşağıdaki komutu yazdığınızda bekleme listesine gireceksiniz. Sıranız geldiğinde doğrudan ilgili node'a bağlanacaksınız. 
 
 .. code-block:: bash
 
@@ -85,7 +87,7 @@ Bulunduğunuz klasör lammps_stable/build-intel18-openmpi4 olmalı. C/C++ ve For
 
       conda install -c conda-forge gsl 
 
-Daha sonrasında CMake ile build komutunu çalışarak LAMMPS’i derleyiniz:
+Daha sonra CMake ile build komutunu çalışarak LAMMPS’i derleyiniz:
 
 .. code-block:: bash
 
@@ -94,15 +96,15 @@ Daha sonrasında CMake ile build komutunu çalışarak LAMMPS’i derleyiniz:
 
 Yukarıdaki kurulum adımları tamamlandığında bulunduğunuz ``build-intel18-openmpi4`` dizininde çalıştırılabilir ``lmp`` dosyası yer alacaktır.
 
---------------------------
-Hamsi Node'unda Kurulum
---------------------------
+------------------------------------
+Hamsi Hesaplama Kümesi'nde Kurulum
+------------------------------------
 
-Kurulumu ``hamsi`` kuyruğu için optimize bir şekilde kurmak istiyorsanız öncelikle ``srun`` komutu ile ``hamsi`` kuyruğundaki 1 tane makineden 28 tane CPU'yu (hamsi kümesindeki cpu kullanımı için bakınız: :ref:`hamsi-node`) kendi kullanıcınız için interaktif olarak ayırabilirsiniz. Aşağıdaki komutu yazdığınızda bekleme listesine gireceksiniz. Sıranız geldiğinde doğrudan ilgili node'a bağlanacaksınız. 
+Kurulumu ``hamsi`` kuyruğu için optimize bir şekilde kurmak istiyorsanız öncelikle ``srun`` komutu ile ``hamsi`` kuyruğundaki 1 tane makineden 28 tane CPU'yu (``hamsi`` kümesindeki CPU kullanımı için bakınız: :ref:`hamsi-node`) kendi kullanıcınız için interaktif olarak ayırabilirsiniz. Aşağıdaki komutu yazdığınızda bekleme listesine gireceksiniz. Sıranız geldiğinde doğrudan ilgili node'a bağlanacaksınız. 
 
 .. code-block:: bash
 
-   srun -N 1 -A kullaniciadi -p hamsi --ntasks-per-node=28 --time=01:00:00 --constraint=barbun --job-name "install" --pty bash -i
+   srun -N 1 -A kullaniciadi -p hamsi --ntasks-per-node=28 --time=01:00:00 --job-name "install" --pty bash -i
 
 .. note::
 
@@ -159,11 +161,11 @@ Kurulum yapmak istediğiniz klasörün altında LAMMPS için derleme ortamını 
 
    
 
-Bulunduğunuz klasör lammps_stable/build-oneapi21-impi olmalı. C/C++ ve Fortran90 derleyicilerin tanımlamalarını yapınız:
+Bulunduğunuz klasör lammps_stable/build-oneapi21-impi olmalı. Intel C/C++ ve Fortran derleyicilerin tanımlamalarını yapınız:
 
 .. code-block:: bash
 
-   export CCC=mpicc CXX=mpicxx FC=mpif90
+   export CC=mpiicc CXX=mpiicpc FC=mpiifort
 
 ``-D PKG_NAME=yes`` komutu ile kurulmasını istediğiniz paketleri belirtebilirsiniz. Paket ayrıntıları için LAMMPS kullanma kitapçığını inceleyebilirsiniz (https://lammps.sandia.gov/doc/Packages.html).
 
@@ -171,7 +173,7 @@ Bulunduğunuz klasör lammps_stable/build-oneapi21-impi olmalı. C/C++ ve Fortra
 
 .. code-block:: bash
 
-   FLAGS="-xHost"; CFLAGS=$FLAGS CXXFLAGS=$CFLAGS CC=mpiicc CXX=mpicpc FC=mpif90 cmake ../cmake -D BUILD_MPI=on -D BLAS_LIBRARIES="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl" -D LAPACK_LIBRARIES="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl" -D PKG_BODY=yes -D PKG_CLASS2=yes -D PKG_DIPOLE=yes -D PKG_MANYBODY=yes -D PKG_MC=yes -D PKG_LATTE=yes -D PKG_MLIAP=yes -D PKG_SNAP=yes -D PKG_SPIN=yes -D PKG_PYTHON=yes -D PKG_USER-MOLFILE=yes -D PKG_MOLECULE=yes -D PKG_USER-PHONON=yes -D PKG_USER-REAXC=yes  -D PKG_KSPACE=yes -D PKG_USER-MEAMC=yes -D PKG_USER-SMTBQ=yes -D PKG_USER-DIFFRACTION=yes -D FFT=MKL
+   FLAGS="-xHost"; CFLAGS=$FLAGS CXXFLAGS=$CFLAGS CC=mpiicc CXX=mpiicpc FC=mpiifort cmake ../cmake -D BUILD_MPI=on -D BLAS_LIBRARIES="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl" -D LAPACK_LIBRARIES="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl" -D PKG_BODY=yes -D PKG_CLASS2=yes -D PKG_DIPOLE=yes -D PKG_MANYBODY=yes -D PKG_MC=yes -D PKG_LATTE=yes -D PKG_MLIAP=yes -D PKG_SNAP=yes -D PKG_SPIN=yes -D PKG_PYTHON=yes -D PKG_USER-MOLFILE=yes -D PKG_MOLECULE=yes -D PKG_USER-PHONON=yes -D PKG_USER-REAXC=yes  -D PKG_KSPACE=yes -D PKG_USER-MEAMC=yes -D PKG_USER-SMTBQ=yes -D PKG_USER-DIFFRACTION=yes -D FFT=MKL
 
 .. note::
 
@@ -185,7 +187,7 @@ Bulunduğunuz klasör lammps_stable/build-oneapi21-impi olmalı. C/C++ ve Fortra
 
       conda install -c conda-forge gsl 
 
-Daha sonrasında CMake ile build komutunu çalışarak LAMMPS’i derleyiniz:
+Daha sonra CMake ile build komutunu çalışarak LAMMPS’i derleyiniz:
 
 .. code-block:: bash
 

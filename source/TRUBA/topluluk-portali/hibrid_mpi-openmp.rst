@@ -1,10 +1,10 @@
 .. _hibrid-mpi-openmp:
 
 ======================================================
-Hibrid (MPI+OpenMP) uygulamaların çalıştırılması
+Hibrid (MPI+OpenMP) Uygulamaların Çalıştırılması
 ======================================================
 
-Genel olarak tersi olsa da, iyi tasarlanmış hibrid uygulamaların (örnegin Intel MKL ile birlikte gelen xhpl) performansı MPI uygulamalardan daha iyi olabilmektedir. Bunun başlıca sebebi, nodlar arası gerçekleşen iletişim ihtiyaçlarının önemli ölçüde azalması, node içerisindeki tasklar arası haberleşmenin, network yada Infiniband katmanına göre çok daha hızlı olan ortak bellek üzerinde gerçekleşmesidir.
+Genel olarak tersi olsa da, iyi tasarlanmış hibrid uygulamaların (örnegin Intel MKL ile birlikte gelen xhpl) performansı MPI uygulamalardan daha iyi olabilmektedir. Bunun başlıca sebebi, nodlar arası gerçekleşen iletişim ihtiyaçlarının önemli ölçüde azalması, node içerisindeki tasklar arası haberleşmenin, network ya da Infiniband katmanına göre çok daha hızlı olan ortak bellek üzerinde gerçekleşmesidir.
 
 xhpl'in hibrid,mpi ve multitask versiyonları için hazırlanmış olan slurm betiklerini /truba/sw/scripts dizini altında bulabilirsiniz.
 
@@ -21,7 +21,7 @@ xhpl'in hibrid,mpi ve multitask versiyonları için hazırlanmış olan slurm be
     parametreleri slurm dosyasında belirtilmelidir. Ayrıntılı bilgiye man sbatch komutu ile ulaşabilir ve/veya :ref:`slurm-betik` sayfasını ziyaret edebilirsiniz.
 
 
-Sbatch ile çalışırken:
+Sbatch ile Çalışırken:
 ------------------------
 
 **-N 4 :** -n tane taskın başlatılacağı node sayısı

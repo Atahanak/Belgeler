@@ -8,7 +8,6 @@ VASP Kılavuzu
     :maxdepth: 1
     
     vasp_description.rst
-    vasp_install_truba.rst
-    vasp_truba.rst
-    vasp_local.rst
+    vasp_install_TRUBA.rst
+    vasp_TRUBA.rst
 
